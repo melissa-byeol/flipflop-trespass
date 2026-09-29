@@ -195,7 +195,9 @@
       borders: [
         { x: 1, y: 0, dir: 'right', type: 'wall' },
         { x: 2, y: 1, dir: 'right', type: 'door-red' },
-        { x: 1, y: 2, dir: 'right', type: 'door-blue' }
+        { x: 1, y: 2, dir: 'right', type: 'door-blue' },
+        { x: 1, y: 2, dir: 'up', type: 'wall' },
+        { x: 1, y: 2, dir: 'left', type: 'wall' }
       ]
     };
 
@@ -205,7 +207,12 @@
         [{ item: null }, { item: 'STAR' },     { item: null }],     // Fila 1
         [{ item: null }, { item: 'KEY_RED' },  { item: null }]      // Fila 2
       ],
-      borders: []
+      borders: [
+        { x: 1, y: 1, dir: 'right', type: 'wall' },
+        { x: 1, y: 1, dir: 'left', type: 'wall' },
+        { x: 1, y: 1, dir: 'up', type: 'wall' },
+        { x: 1, y: 0, dir: 'down', type: 'door-blue' }
+      ]
     };
 
     // --- RENDERIZADO DEL MAPA ---
