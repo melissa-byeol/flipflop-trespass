@@ -1,0 +1,202 @@
+:root {
+  --bg-color: #0f172a;
+  --card-blue: #1e293b;
+  --card-red: #3b0764;
+  --accent-blue: #38bdf8;
+  --accent-red: #f43f5e;
+  --gold: #facc15;
+  --wall-color: #f8fafc;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: #f8fafc;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  margin: 0;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+h1 {
+  margin-bottom: 5px;
+  font-size: 1.8rem;
+}
+
+.status-bar {
+  margin-bottom: 20px;
+  display: flex;
+  gap: 20px;
+  font-weight: bold;
+}
+
+.inventory {
+  display: flex;
+  gap: 10px;
+}
+
+.key-badge {
+  padding: 4px 10px;
+  border-radius: 4px;
+  opacity: 0.3;
+  border: 1px solid #fff;
+}
+
+.key-badge.acquired {
+  opacity: 1;
+  box-shadow: 0 0 10px currentColor;
+}
+
+/* Escenario 3D */
+.game-scene {
+  width: 300px;
+  height: 300px;
+  perspective: 800px;
+}
+
+.grid-card {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+}
+
+.grid-card.flipped {
+  transform: rotateY(180deg);
+}
+
+/* Caras del Mapa */
+.map-face {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  padding: 6px;
+  box-sizing: border-box;
+  gap: 0;
+}
+
+.map-blue {
+  background-color: var(--card-blue);
+  border: 3px solid var(--accent-blue);
+}
+
+.map-red {
+  background-color: var(--card-red);
+  border: 3px solid var(--accent-red);
+  transform: rotateY(180deg);
+}
+
+/* Celdas */
+.cell {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  box-sizing: border-box;
+  user-select: none;
+}
+
+/* Bordes (Paredes y Puertas) */
+.border-wall-right  { border-right: 5px solid var(--wall-color); }
+.border-wall-left   { border-left: 5px solid var(--wall-color); }
+.border-wall-top    { border-top: 5px solid var(--wall-color); }
+.border-wall-bottom { border-bottom: 5px solid var(--wall-color); }
+
+.border-door-blue-right  { border-right: 5px dashed var(--accent-blue); }
+.border-door-blue-left   { border-left: 5px dashed var(--accent-blue); }
+.border-door-blue-top    { border-top: 5px dashed var(--accent-blue); }
+.border-door-blue-bottom { border-bottom: 5px dashed var(--accent-blue); }
+
+.border-door-red-right  { border-right: 5px dashed var(--accent-red); }
+.border-door-red-left   { border-left: 5px dashed var(--accent-red); }
+.border-door-red-top    { border-top: 5px dashed var(--accent-red); }
+.border-door-red-bottom { border-bottom: 5px dashed var(--accent-red); }
+
+/* Ficha del Jugador */
+.player {
+  position: absolute;
+  width: 32px;
+  height: 32px;
+  background-color: var(--gold);
+  border-radius: 50%;
+  box-shadow: 0 0 12px var(--gold);
+  z-index: 10;
+  transition: all 0.15s ease-out;
+  pointer-events: none;
+}
+
+/* Mensajes y Controles */
+.message-log {
+  margin-top: 20px;
+  min-height: 24px;
+  color: #94a3b8;
+  font-size: 0.95rem;
+  text-align: center;
+}
+
+.controls-hint {
+  margin-top: 10px;
+  font-size: 0.85rem;
+  color: #64748b;
+  text-align: center;
+}
+
+/* Controles Móviles (D-Pad) */
+.mobile-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 15px;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.dpad {
+  display: grid;
+  grid-template-columns: repeat(3, 55px);
+  grid-template-rows: repeat(3, 55px);
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 10px;
+  border-radius: 50%;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.btn-touch {
+  background: #1e293b;
+  color: #ffffff;
+  border: 2px solid #475569;
+  border-radius: 12px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.1s, transform 0.1s, border-color 0.1s;
+  touch-action: manipulation;
+}
+
+.btn-touch:active {
+  background: #334155;
+  transform: scale(0.92);
+  border-color: #94a3b8;
+}
+
+.btn-up     { grid-column: 2; grid-row: 1; }
+.btn-left   { grid-column: 1; grid-row: 2; }
+.btn-center { grid-column: 2; grid-row: 2; background: #3b0764; border-color: var(--accent-blue); font-size: 1rem; }
+.btn-right  { grid-column: 3; grid-row: 2; }
+.btn-down   { grid-column: 2; grid-row: 3; }
