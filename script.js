@@ -26,6 +26,7 @@ const blueMapConfig = {
   ],
   borders: [
     { x: 1, y: 0, dir: 'right', type: 'wall' },
+    { x: 1, y: 1, dir: 'right', type: 'wall'},
     { x: 2, y: 1, dir: 'right', type: 'door-red' },
     { x: 1, y: 2, dir: 'right', type: 'door-blue' },
     { x: 1, y: 2, dir: 'top', type: 'wall' },
