@@ -4,7 +4,8 @@ const gameState = {
   currentSide: 'blue', // 'blue' o 'red'
   keys: { blue: false, red: false },
   starsCollected: 0,
-  totalStars: 3
+  totalStars: 3,
+  hasBracelet: false // ⚙️ Cambia a 'true' en niveles donde el jugador empiece con el Brazalete Flip
 };
 
 // Mapeo de direcciones estandarizadas para CSS
@@ -26,7 +27,7 @@ const blueMapConfig = {
   ],
   borders: [
     { x: 1, y: 0, dir: 'right', type: 'wall' },
-    { x: 1, y: 1, dir: 'right', type: 'wall'},
+    { x: 1, y: 1, dir: 'right', type: 'wall' },
     { x: 2, y: 1, dir: 'right', type: 'door-red' },
     { x: 1, y: 2, dir: 'right', type: 'door-blue' },
     { x: 1, y: 2, dir: 'top', type: 'wall' },
@@ -172,12 +173,13 @@ function checkCellInteractions() {
       showMessage('🎉 ¡FELICIDADES! ¡Has recolectado todas las estrellas y escapado!');
     }
   } else if (cellData.item === 'FLIP') {
-    triggerFlip();
+    showMessage('🔄 Estás sobre una máquina Flip-Flop. Presiona ESPACIO o el botón 🔄 para cambiar de dimensión.');
   }
 
   renderGrid(`${side}-grid`, config);
 }
 
+// --- MECÁNICA FLIP ---
 function triggerFlip() {
   const card = document.getElementById('card');
   const newSide = gameState.currentSide === 'blue' ? 'red' : 'blue';
@@ -193,15 +195,20 @@ function triggerFlip() {
   setTimeout(updatePlayerPosition, 300);
 }
 
-function triggerFlipManual() {
+// Comprueba si el jugador puede cambiar de dimensión (Brazalete o Máquina)
+function tryFlip() {
   const config = gameState.currentSide === 'blue' ? blueMapConfig : redMapConfig;
   const currentItem = config.grid[gameState.player.y][gameState.player.x].item;
 
-  if (currentItem === 'FLIP') {
+  if (gameState.hasBracelet || currentItem === 'FLIP') {
     triggerFlip();
   } else {
-    showMessage('⚠️ Debes estar sobre una casilla 🔄 para cambiar de dimensión.');
+    showMessage('⚠️ Debes estar sobre una máquina 🔄 o activar el Brazalete Flip.');
   }
+}
+
+function triggerFlipManual() {
+  tryFlip();
 }
 
 function showMessage(msg) {
@@ -215,6 +222,10 @@ window.addEventListener('keydown', (e) => {
     case 's': case 'arrowdown': movePlayer(0, 1); break;
     case 'a': case 'arrowleft': movePlayer(-1, 0); break;
     case 'd': case 'arrowright': movePlayer(1, 0); break;
+    case ' ': // 🌌 Tecla Espacio para el cambio dimensional
+      e.preventDefault();
+      tryFlip();
+      break;
   }
 });
 
