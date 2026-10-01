@@ -10,12 +10,31 @@
 
   <h1>Flip Escape Room 2D</h1>
 
+  <!-- Selector de color para la ficha del jugador -->
+  <div class="color-picker-container">
+    <span>Color de Ficha:</span>
+    <div class="color-options">
+      <button class="color-btn active" style="background-color: #facc15;" onclick="selectPlayerColor('#facc15', this)" aria-label="Color Amarillo"></button>
+      <button class="color-btn" style="background-color: #38bdf8;" onclick="selectPlayerColor('#38bdf8', this)" aria-label="Color Azul"></button>
+      <button class="color-btn" style="background-color: #f43f5e;" onclick="selectPlayerColor('#f43f5e', this)" aria-label="Color Rojo"></button>
+      <button class="color-btn" style="background-color: #22cc55;" onclick="selectPlayerColor('#22cc55', this)" aria-label="Color Verde"></button>
+      <button class="color-btn" style="background-color: #a855f7;" onclick="selectPlayerColor('#a855f7', this)" aria-label="Color Morado"></button>
+    </div>
+  </div>
+
   <div class="status-bar">
     <div>Mapa Actual: <span id="map-indicator" style="color: var(--accent-blue);">AZUL</span></div>
     <div class="inventory">
-      <span id="badge-blue" class="key-badge" style="color: var(--accent-blue);">🔑 Azul</span>
-      <span id="badge-red" class="key-badge" style="color: var(--accent-red);">🔑 Roja</span>
-      <span id="badge-stars" style="color: var(--gold);">⭐ 0/3</span>
+      <span id="badge-blue" class="key-badge" style="color: var(--accent-blue);">
+        <img src="blue-key.png" class="badge-icon" alt="Llave Azul"> Azul
+      </span>
+      <span id="badge-red" class="key-badge" style="color: var(--accent-red);">
+        <img src="red-key.png" class="badge-icon" alt="Llave Roja"> Roja
+      </span>
+      <span id="badge-yellow" class="key-badge" style="color: var(--accent-yellow);">
+        <img src="yellow-key.png" class="badge-icon" alt="Llave Amarilla"> Amarilla
+      </span>
+      <span id="badge-stars" style="color: var(--gold);">⭐ 0/2</span>
     </div>
   </div>
 
@@ -27,7 +46,7 @@
   </div>
 
   <div class="message-log" id="message">Usa W, A, S, D, Flechas o los botones táctiles para moverte.</div>
-  <div class="controls-hint">Pisa el interruptor 🔄 para voltear el mapa (FLIP).</div>
+  <div class="controls-hint">Pisa el interruptor 🔄 o usa el Brazalete (ESPACIO) para voltear el mapa (FLIP).</div>
 
   <!-- Controles táctiles para dispositivos móviles / tablets -->
   <div class="mobile-controls">
