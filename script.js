@@ -1,10 +1,12 @@
 // --- ESTADO DEL JUEGO ---
 const gameState = {
+  mode: 'keys', // 'keys' o 'colorscape'
   currentLevel: 0,
   player: { 
     x: 0, 
     y: 2, 
-    color: '#facc15'
+    hexColor: '#facc15',
+    colorName: 'yellow'
   },
   currentSide: 'blue',
   keys: { blue: false, red: false, yellow: false },
@@ -14,13 +16,10 @@ const gameState = {
 };
 
 const DIR_MAP = {
-  up: 'top',
-  down: 'bottom',
-  top: 'top',
-  bottom: 'bottom',
-  left: 'left',
-  right: 'right'
+  up: 'top', down: 'bottom', top: 'top', bottom: 'bottom', left: 'left', right: 'right'
 };
+
+const COLOR_LABELS = { yellow: 'AMARILLO', blue: 'AZUL', red: 'ROJO' };
 
 // --- CONFIGURACIÓN DE NIVELES ---
 const levels = [
@@ -37,7 +36,7 @@ const levels = [
       borders: [
         { x: 1, y: 0, dir: 'right', type: 'wall' },
         { x: 1, y: 1, dir: 'right', type: 'wall' },
-        { x: 2, y: 1, dir: 'right', type: 'door-red' }, // Pasillo / Puerta de salida al Nivel 2
+        { x: 2, y: 1, dir: 'right', type: 'door-red' },
         { x: 1, y: 2, dir: 'right', type: 'door-blue' },
         { x: 1, y: 2, dir: 'top', type: 'wall' },
         { x: 1, y: 2, dir: 'left', type: 'wall' }
@@ -53,7 +52,7 @@ const levels = [
         { x: 1, y: 1, dir: 'right', type: 'wall' },
         { x: 1, y: 1, dir: 'left', type: 'wall' },
         { x: 1, y: 1, dir: 'top', type: 'wall' },
-        { x: 1, y: 1, dir: 'bottom', type: 'door-blue' }
+        { x: 1, y: 1, dir: 'bottom', type: 'door-yellow' }
       ]
     }
   },
@@ -89,7 +88,31 @@ const levels = [
   }
 ];
 
-// --- RENDERIZADO DEL MAPA ---
+// --- CAMBIO DE MODO DE JUEGO ---
+function switchGameMode(newMode) {
+  gameState.mode = newMode;
+
+  document.getElementById('btn-mode-keys').classList.toggle('active', newMode === 'keys');
+  document.getElementById('btn-mode-colorscape').classList.toggle('active', newMode === 'colorscape');
+
+  const invKeys = document.getElementById('inventory-keys');
+  const invColors = document.getElementById('inventory-colorscape');
+  const colorLabel = document.getElementById('color-picker-label');
+
+  if (newMode === 'keys') {
+    invKeys.classList.remove('hidden');
+    invColors.classList.add('hidden');
+    colorLabel.innerText = 'Color de Ficha:';
+  } else {
+    invKeys.classList.add('hidden');
+    invColors.classList.remove('hidden');
+    colorLabel.innerText = 'Pasaporte / Color:';
+  }
+
+  loadLevel(0);
+}
+
+// --- RENDERIZADO ---
 function renderGrid(containerId, config) {
   const container = document.getElementById(containerId);
   container.innerHTML = '';
@@ -104,23 +127,21 @@ function renderGrid(containerId, config) {
       const item = config.grid[y][x].item;
       if (item === 'FLIP') {
         cell.innerText = '🔄';
-      } else if (item === 'KEY_BLUE') {
-        cell.innerHTML = '<img src="assets/blue-key.png" class="item-icon" alt="Llave Azul">';
-      } else if (item === 'KEY_RED') {
-        cell.innerHTML = '<img src="assets/red-key.png" class="item-icon" alt="Llave Roja">';
-      } else if (item === 'KEY_YELLOW') {
-        cell.innerHTML = '<img src="assets/yellow-key.png" class="item-icon" alt="Llave Amarilla">';
       } else if (item === 'STAR') {
         cell.innerText = '⭐';
       } else if (item === 'SPAWN') {
         cell.innerText = '🚩';
+      } else if (gameState.mode === 'keys') {
+        // En modo Colorscape ocultamos visualmente las llaves del mapa
+        if (item === 'KEY_BLUE') cell.innerHTML = '<img src="assets/blue-key.png" class="item-icon" alt="Llave Azul">';
+        if (item === 'KEY_RED') cell.innerHTML = '<img src="assets/red-key.png" class="item-icon" alt="Llave Roja">';
+        if (item === 'KEY_YELLOW') cell.innerHTML = '<img src="assets/yellow-key.png" class="item-icon" alt="Llave Amarilla">';
       }
 
       container.appendChild(cell);
     }
   }
 
-  // Aplicar Bordes
   config.borders.forEach(b => {
     const selector = `#${containerId} .cell[data-x="${b.x}"][data-y="${b.y}"]`;
     const cell = document.querySelector(selector);
@@ -146,26 +167,35 @@ function updatePlayerPosition() {
     const rect = cell.getBoundingClientRect();
     token.style.left = `${rect.left + rect.width / 2 - 16}px`;
     token.style.top = `${rect.top + rect.height / 2 - 16}px`;
-    token.style.setProperty('--player-color', gameState.player.color);
+    token.style.setProperty('--player-color', gameState.player.hexColor);
   }
 }
 
-function selectPlayerColor(colorHex, buttonElement) {
-  gameState.player.color = colorHex;
+function selectPlayerColor(colorHex, colorName, buttonElement) {
+  gameState.player.hexColor = colorHex;
+  gameState.player.colorName = colorName;
   
   const token = document.getElementById('player-token');
-  if (token) {
-    token.style.setProperty('--player-color', colorHex);
+  if (token) token.style.setProperty('--player-color', colorHex);
+
+  const indicator = document.getElementById('color-indicator');
+  if (indicator) {
+    indicator.innerText = COLOR_LABELS[colorName];
+    indicator.style.color = colorHex;
   }
 
   const buttons = document.querySelectorAll('.color-btn');
   buttons.forEach(btn => btn.classList.remove('active'));
-  if (buttonElement) {
-    buttonElement.classList.add('active');
+  if (buttonElement) buttonElement.classList.add('active');
+
+  if (gameState.mode === 'colorscape') {
+    showMessage(`🎨 Cambiaste a fase ${COLOR_LABELS[colorName]}. Ahora solo puedes pasar por puertas de este color.`);
+  } else {
+    showMessage(`🎨 Cambiaste la estética de tu ficha.`);
   }
 }
 
-// --- LÓGICA DE MOVIMIENTO Y COLISIONES CORREGIDA ---
+// --- MOVIMIENTO ---
 function movePlayer(dx, dy) {
   const currentX = gameState.player.x;
   const currentY = gameState.player.y;
@@ -181,43 +211,40 @@ function movePlayer(dx, dy) {
   let blocked = false;
   let exitToNextLevel = false;
 
-  // Verificar si hay una puerta o pared en la casilla actual hacia la dirección de movimiento
   currentConfig.borders.forEach(b => {
     const bDir = DIR_MAP[b.dir] || b.dir;
-
     const isExitBorder = (b.x === currentX && b.y === currentY && bDir === dirOut);
     const isEntryBorder = (b.x === targetX && b.y === targetY && bDir === dirIn);
 
     if (isExitBorder || isEntryBorder) {
       if (b.type === 'wall') {
         blocked = true;
-      } else if (b.type === 'door-blue') {
-        if (!gameState.keys.blue) {
-          blocked = true;
-          showMessage('🚪 Necesitas la Llave Azul para pasar por aquí.');
-        } else {
-          b.type = 'unlocked';
-          showMessage('🔓 Abriste la puerta azul.');
-        }
-      } else if (b.type === 'door-red') {
-        if (!gameState.keys.red) {
-          blocked = true;
-          showMessage('🚪 Necesitas la Llave Roja para abrir el pasillo.');
-        } else {
-          b.type = 'unlocked';
-          if (gameState.currentLevel === 0) {
-            exitToNextLevel = true; // Permite el paso y activa la transición
-          } else {
-            showMessage('🔓 Abriste la puerta roja.');
+      } else if (gameState.mode === 'keys') {
+        // LÓGICA MODO LLAVES
+        if (b.type === 'door-blue') {
+          if (!gameState.keys.blue) { blocked = true; showMessage('🚪 Necesitas la Llave Azul.'); } 
+          else { b.type = 'unlocked'; showMessage('🔓 Abriste la puerta azul.'); }
+        } else if (b.type === 'door-red') {
+          if (!gameState.keys.red) { blocked = true; showMessage('🚪 Necesitas la Llave Roja.'); } 
+          else { 
+            b.type = 'unlocked'; 
+            if (gameState.currentLevel === 0) exitToNextLevel = true; 
+            else showMessage('🔓 Abriste la puerta roja.');
           }
+        } else if (b.type === 'door-yellow') {
+          if (!gameState.keys.yellow) { blocked = true; showMessage('🚪 Necesitas la Llave Amarilla.'); } 
+          else { b.type = 'unlocked'; showMessage('🔓 Abriste la puerta amarilla.'); }
         }
-      } else if (b.type === 'door-yellow') {
-        if (!gameState.keys.yellow) {
-          blocked = true;
-          showMessage('🚪 Necesitas la Llave Amarilla para pasar por aquí.');
-        } else {
-          b.type = 'unlocked';
-          showMessage('🔓 Abriste la puerta amarilla.');
+      } else if (gameState.mode === 'colorscape') {
+        // LÓGICA MODO COLORSCAPE
+        if (b.type === 'door-blue' && gameState.player.colorName !== 'blue') {
+          blocked = true; showMessage('⛔ Puerta AZUL: Cambia a ficha Azul para cruzar.');
+        } else if (b.type === 'door-red' && gameState.player.colorName !== 'red') {
+          blocked = true; showMessage('⛔ Puerta ROJA: Cambia a ficha Roja para cruzar.');
+        } else if (b.type === 'door-red' && gameState.player.colorName === 'red' && gameState.currentLevel === 0) {
+          exitToNextLevel = true;
+        } else if (b.type === 'door-yellow' && gameState.player.colorName !== 'yellow') {
+          blocked = true; showMessage('⛔ Puerta AMARILLA: Cambia a ficha Amarilla para cruzar.');
         }
       }
     }
@@ -225,16 +252,12 @@ function movePlayer(dx, dy) {
 
   if (blocked) return;
 
-  // Transición especial al Nivel 2 al salir por la Puerta Roja en el borde del Nivel 1
   if (exitToNextLevel) {
-    showMessage('🚪 ¡Puerta Roja abierta! Entrando al pasillo hacia el Nivel 2...');
-    setTimeout(() => {
-      loadLevel(1);
-    }, 500);
+    showMessage('🚪 ¡Puerta completada! Entrando al Nivel 2...');
+    setTimeout(() => { loadLevel(1); }, 500);
     return;
   }
 
-  // Verificar límites del mapa normal
   if (targetX < 0 || targetX > 2 || targetY < 0 || targetY > 2) return;
 
   gameState.player.x = targetX;
@@ -250,32 +273,30 @@ function checkCellInteractions() {
 
   if (!cellData.item) return;
 
-  if (cellData.item === 'KEY_BLUE') {
-    gameState.keys.blue = true;
-    cellData.item = null;
-    document.getElementById('badge-blue').classList.add('acquired');
-    showMessage('🔑 ¡Conseguiste la Llave Azul!');
-  } else if (cellData.item === 'KEY_RED') {
-    gameState.keys.red = true;
-    cellData.item = null;
-    document.getElementById('badge-red').classList.add('acquired');
-    showMessage('🔑 ¡Conseguiste la Llave Roja!');
-  } else if (cellData.item === 'KEY_YELLOW') {
-    gameState.keys.yellow = true;
-    cellData.item = null;
-    document.getElementById('badge-yellow').classList.add('acquired');
-    showMessage('🔑 ¡Conseguiste la Llave Amarilla!');
-  } else if (cellData.item === 'STAR') {
+  if (gameState.mode === 'keys') {
+    if (cellData.item === 'KEY_BLUE') {
+      gameState.keys.blue = true; cellData.item = null;
+      document.getElementById('badge-blue').classList.add('acquired');
+      showMessage('🔑 ¡Conseguiste la Llave Azul!');
+    } else if (cellData.item === 'KEY_RED') {
+      gameState.keys.red = true; cellData.item = null;
+      document.getElementById('badge-red').classList.add('acquired');
+      showMessage('🔑 ¡Conseguiste la Llave Roja!');
+    } else if (cellData.item === 'KEY_YELLOW') {
+      gameState.keys.yellow = true; cellData.item = null;
+      document.getElementById('badge-yellow').classList.add('acquired');
+      showMessage('🔑 ¡Conseguiste la Llave Amarilla!');
+    }
+  }
+
+  if (cellData.item === 'STAR') {
     gameState.starsCollected++;
     cellData.item = null;
-    document.getElementById('badge-stars').innerText = `⭐ ${gameState.starsCollected}/${gameState.totalStars}`;
+    const starLabel = gameState.mode === 'keys' ? 'badge-stars-keys' : 'badge-stars-colors';
+    document.getElementById(starLabel).innerText = `⭐ ${gameState.starsCollected}/${gameState.totalStars}`;
     showMessage('⭐ ¡Recogiste una estrella!');
-    
-    if (gameState.starsCollected === gameState.totalStars) {
-      showMessage('🎉 ¡FELICIDADES! ¡Recolectaste todas las estrellas de este nivel!');
-    }
   } else if (cellData.item === 'FLIP') {
-    showMessage('🔄 Estás sobre una máquina Flip-Flop. Presiona ESPACIO o 🔄 para cambiar de dimensión.');
+    showMessage('🔄 Máquina Flip-Flop. Presiona ESPACIO o 🔄 para voltear el mapa.');
   }
 
   renderGrid(`${gameState.currentSide}-grid`, sideConfig);
@@ -308,9 +329,7 @@ function tryFlip() {
   }
 }
 
-function triggerFlipManual() {
-  tryFlip();
-}
+function triggerFlipManual() { tryFlip(); }
 
 function showMessage(msg) {
   document.getElementById('message').innerText = msg;
@@ -318,7 +337,7 @@ function showMessage(msg) {
 
 function loadLevel(levelIndex) {
   if (levelIndex >= levels.length) {
-    showMessage('🎉 ¡FELICIDADES! Has completado todos los niveles del juego.');
+    showMessage('🎉 ¡FELICIDADES! Has completado el modo actual.');
     return;
   }
 
@@ -347,7 +366,9 @@ function loadLevel(levelIndex) {
   document.getElementById('badge-blue').classList.remove('acquired');
   document.getElementById('badge-red').classList.remove('acquired');
   document.getElementById('badge-yellow').classList.remove('acquired');
-  document.getElementById('badge-stars').innerText = `⭐ 0/${gameState.totalStars}`;
+  
+  document.getElementById('badge-stars-keys').innerText = `⭐ 0/${gameState.totalStars}`;
+  document.getElementById('badge-stars-colors').innerText = `⭐ 0/${gameState.totalStars}`;
 
   const card = document.getElementById('card');
   card.classList.remove('flipped');
@@ -356,11 +377,8 @@ function loadLevel(levelIndex) {
   renderGrid('red-grid', levelData.redMap);
   updatePlayerPosition();
 
-  const modeText = gameState.hasBracelet 
-    ? '⌚ ¡Brazalete Equipado! Presiona ESPACIO en cualquier casilla.' 
-    : '🔄 Usa las máquinas Flip-Flop para cambiar de dimensión.';
-
-  showMessage(`🚪 ¡Nivel ${levelIndex + 1} cargado! ${modeText}`);
+  const modeName = gameState.mode === 'keys' ? 'Modo Llaves' : 'Colorscape';
+  showMessage(`🚪 Carga completada: ${modeName} - Nivel ${levelIndex + 1}.`);
 }
 
 window.addEventListener('keydown', (e) => {
@@ -379,4 +397,4 @@ window.addEventListener('keydown', (e) => {
 window.addEventListener('resize', updatePlayerPosition);
 
 createPlayerToken();
-loadLevel(0);
+switchGameMode('keys');
