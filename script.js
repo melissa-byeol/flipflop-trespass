@@ -1,11 +1,16 @@
 // --- ESTADO DEL JUEGO ---
 const gameState = {
-  player: { x: 0, y: 2 },
-  currentSide: 'blue', // 'blue' o 'red'
-  keys: { blue: false, red: false },
+  currentLevel: 0,
+  player: { 
+    x: 0, 
+    y: 2, 
+    color: '#facc15' // Color por defecto (Dorado/Amarillo)
+  },
+  currentSide: 'blue',
+  keys: { blue: false, red: false, yellow: false },
   starsCollected: 0,
-  totalStars: 3,
-  hasBracelet: false // ⚙️ Cambia a 'true' en niveles donde el jugador empiece con el Brazalete Flip
+  totalStars: 2,
+  hasBracelet: false
 };
 
 // Mapeo de direcciones estandarizadas para CSS
@@ -18,36 +23,77 @@ const DIR_MAP = {
   right: 'right'
 };
 
-// --- CONFIGURACIÓN DE LOS MAPAS ---
-const blueMapConfig = {
-  grid: [
-    [{ item: null },       { item: 'FLIP' },     { item: 'STAR' }], // Fila 0
-    [{ item: null },       { item: 'KEY_BLUE' }, { item: null }],   // Fila 1
-    [{ item: 'SPAWN' },    { item: 'STAR' },     { item: null }]    // Fila 2
-  ],
-  borders: [
-    { x: 1, y: 0, dir: 'right', type: 'wall' },
-    { x: 1, y: 1, dir: 'right', type: 'wall' },
-    { x: 2, y: 1, dir: 'right', type: 'door-red' },
-    { x: 1, y: 2, dir: 'right', type: 'door-blue' },
-    { x: 1, y: 2, dir: 'top', type: 'wall' },
-    { x: 1, y: 2, dir: 'left', type: 'wall' }
-  ]
-};
+// --- CONFIGURACIÓN DE NIVELES ---
+const levels = [
+  // ==========================================
+  // NIVEL 1 (Índice 0) - Puerta Roja actúa como pasillo al Nivel 2
+  // ==========================================
+  {
+    hasBracelet: false,
+    totalStars: 3,
+    blueMap: {
+      grid: [
+        [{ item: null },       { item: 'FLIP' },     { item: 'STAR' }], // Fila 0
+        [{ item: null },       { item: 'KEY_BLUE' }, { item: null }],   // Fila 1
+        [{ item: 'SPAWN' },    { item: 'STAR' },     { item: null }]    // Fila 2
+      ],
+      borders: [
+        { x: 1, y: 0, dir: 'right', type: 'wall' },
+        { x: 1, y: 1, dir: 'right', type: 'wall' },
+        { x: 2, y: 1, dir: 'right', type: 'door-red' }, // 🚪 Pasillo hacia el Nivel 2
+        { x: 1, y: 2, dir: 'right', type: 'door-blue' },
+        { x: 1, y: 2, dir: 'top', type: 'wall' },
+        { x: 1, y: 2, dir: 'left', type: 'wall' }
+      ]
+    },
+    redMap: {
+      grid: [
+        [{ item: null }, { item: null },       { item: 'FLIP' }],   // Fila 0
+        [{ item: null }, { item: 'STAR' },       { item: null }],     // Fila 1
+        [{ item: null }, { item: 'KEY_RED' },  { item: null }]      // Fila 2
+      ],
+      borders: [
+        { x: 1, y: 1, dir: 'right', type: 'wall' },
+        { x: 1, y: 2, dir: 'right', type: 'wall' },
+        { x: 1, y: 1, dir: 'left', type: 'wall' },
+        { x: 1, y: 1, dir: 'top', type: 'wall' },
+        { x: 1, y: 1, dir: 'bottom', type: 'door-blue' }
+      ]
+    }
+  },
 
-const redMapConfig = {
-  grid: [
-    [{ item: null }, { item: null },       { item: 'FLIP' }],   // Fila 0
-    [{ item: null }, { item: 'STAR' },     { item: null }],     // Fila 1
-    [{ item: null }, { item: 'KEY_RED' },  { item: null }]      // Fila 2
-  ],
-  borders: [
-    { x: 1, y: 1, dir: 'right', type: 'wall' },
-    { x: 1, y: 1, dir: 'left', type: 'wall' },
-    { x: 1, y: 1, dir: 'top', type: 'wall' },
-    { x: 1, y: 1, dir: 'bottom', type: 'door-blue' }
-  ]
-};
+  // ==========================================
+  // NIVEL 2 (Índice 1) - Con Brazalete Flip y Llave Amarilla
+  // ==========================================
+  {
+    hasBracelet: true, // ⌚ Habilita Flip en cualquier casilla
+    totalStars: 3,
+    blueMap: {
+      grid: [
+        [{ item: 'SPAWN' },    { item: null },       { item: 'STAR' }],       // Fila 0
+        [{ item: null },       { item: 'KEY_BLUE' }, { item: null }],         // Fila 1
+        [{ item: 'STAR' },     { item: null },       { item: 'KEY_YELLOW' }]  // Fila 2
+      ],
+      borders: [
+        { x: 0, y: 0, dir: 'right', type: 'wall' },
+        { x: 1, y: 1, dir: 'bottom', type: 'door-blue' },
+        { x: 2, y: 1, dir: 'left', type: 'door-yellow' }
+      ]
+    },
+    redMap: {
+      grid: [
+        [{ item: null },       { item: 'STAR' },     { item: null }],         // Fila 0
+        [{ item: 'KEY_RED' },  { item: null },       { item: null }],         // Fila 1
+        [{ item: null },       { item: null },       { item: null }]          // Fila 2
+      ],
+      borders: [
+        { x: 1, y: 0, dir: 'bottom', type: 'wall' },
+        { x: 2, y: 0, dir: 'left', type: 'wall' },
+        { x: 0, y: 1, dir: 'right', type: 'door-red' }
+      ]
+    }
+  }
+];
 
 // --- RENDERIZADO DEL MAPA ---
 function renderGrid(containerId, config) {
@@ -62,22 +108,30 @@ function renderGrid(containerId, config) {
       cell.dataset.y = y;
 
       const item = config.grid[y][x].item;
-      if (item === 'FLIP') cell.innerText = '🔄';
-      else if (item === 'KEY_BLUE') cell.innerText = '🔑';
-      else if (item === 'KEY_RED') cell.innerText = '🔑';
-      else if (item === 'STAR') cell.innerText = '⭐';
-      else if (item === 'SPAWN') cell.innerText = '🚩';
+      if (item === 'FLIP') {
+        cell.innerText = '🔄';
+      } else if (item === 'KEY_BLUE') {
+        cell.innerHTML = '<img src="blue-key.png" class="item-icon" alt="Llave Azul">';
+      } else if (item === 'KEY_RED') {
+        cell.innerHTML = '<img src="red-key.png" class="item-icon" alt="Llave Roja">';
+      } else if (item === 'KEY_YELLOW') {
+        cell.innerHTML = '<img src="yellow-key.png" class="item-icon" alt="Llave Amarilla">';
+      } else if (item === 'STAR') {
+        cell.innerText = '⭐';
+      } else if (item === 'SPAWN') {
+        cell.innerText = '🚩';
+      }
 
       container.appendChild(cell);
     }
   }
 
-  // Aplicar Bordes con direcciones estandarizadas
+  // Aplicar Bordes
   config.borders.forEach(b => {
     const selector = `#${containerId} .cell[data-x="${b.x}"][data-y="${b.y}"]`;
     const cell = document.querySelector(selector);
     const cssDir = DIR_MAP[b.dir] || b.dir;
-    if (cell) cell.classList.add(`border-${b.type}-${cssDir}`);
+    if (cell && b.type) cell.classList.add(`border-${b.type}-${cssDir}`);
   });
 }
 
@@ -98,6 +152,23 @@ function updatePlayerPosition() {
     const rect = cell.getBoundingClientRect();
     token.style.left = `${rect.left + rect.width / 2 - 16}px`;
     token.style.top = `${rect.top + rect.height / 2 - 16}px`;
+    token.style.setProperty('--player-color', gameState.player.color);
+  }
+}
+
+// --- PERSONALIZACIÓN DEL JUGADOR ---
+function selectPlayerColor(colorHex, buttonElement) {
+  gameState.player.color = colorHex;
+  
+  const token = document.getElementById('player-token');
+  if (token) {
+    token.style.setProperty('--player-color', colorHex);
+  }
+
+  const buttons = document.querySelectorAll('.color-btn');
+  buttons.forEach(btn => btn.classList.remove('active'));
+  if (buttonElement) {
+    buttonElement.classList.add('active');
   }
 }
 
@@ -110,9 +181,9 @@ function movePlayer(dx, dy) {
 
   if (targetX < 0 || targetX > 2 || targetY < 0 || targetY > 2) return;
 
-  const currentConfig = gameState.currentSide === 'blue' ? blueMapConfig : redMapConfig;
+  const currentLevelData = levels[gameState.currentLevel];
+  const currentConfig = gameState.currentSide === 'blue' ? currentLevelData.blueMap : currentLevelData.redMap;
 
-  // Direcciones de salida (origen) y entrada (destino)
   const dirOut = dx === 1 ? 'right' : dx === -1 ? 'left' : dy === 1 ? 'bottom' : 'top';
   const dirIn  = dx === 1 ? 'left'  : dx === -1 ? 'right': dy === 1 ? 'top'    : 'bottom';
 
@@ -121,26 +192,47 @@ function movePlayer(dx, dy) {
   currentConfig.borders.forEach(b => {
     const bDir = DIR_MAP[b.dir] || b.dir;
 
-    // Validación bidireccional
     const isExitBorder = (b.x === currentX && b.y === currentY && bDir === dirOut);
     const isEntryBorder = (b.x === targetX && b.y === targetY && bDir === dirIn);
 
     if (isExitBorder || isEntryBorder) {
-      if (b.type === 'wall') blocked = true;
-      if (b.type === 'door-blue' && !gameState.keys.blue) {
+      if (b.type === 'wall') {
         blocked = true;
-        showMessage('🚪 Necesitas la Llave Azul para pasar por aquí.');
-      }
-      if (b.type === 'door-red' && !gameState.keys.red) {
-        blocked = true;
-        showMessage('🚪 Necesitas la Llave Roja para pasar por aquí.');
+      } else if (b.type === 'door-blue') {
+        if (!gameState.keys.blue) {
+          blocked = true;
+          showMessage('🚪 Necesitas la Llave Azul para pasar por aquí.');
+        } else {
+          b.type = 'unlocked';
+          showMessage('🔓 Abriste la puerta azul.');
+        }
+      } else if (b.type === 'door-red') {
+        if (!gameState.keys.red) {
+          blocked = true;
+          showMessage('🚪 Necesitas la Llave Roja para abrir el pasillo.');
+        } else {
+          b.type = 'unlocked';
+          if (gameState.currentLevel === 0) {
+            showMessage('🚪 ¡Puerta Roja abierta! Atravesando el pasillo al Nivel 2...');
+            setTimeout(() => { loadLevel(1); }, 700);
+          } else {
+            showMessage('🔓 Abriste la puerta roja.');
+          }
+        }
+      } else if (b.type === 'door-yellow') {
+        if (!gameState.keys.yellow) {
+          blocked = true;
+          showMessage('🚪 Necesitas la Llave Amarilla para pasar por aquí.');
+        } else {
+          b.type = 'unlocked';
+          showMessage('🔓 Abriste la puerta amarilla.');
+        }
       }
     }
   });
 
   if (blocked) return;
 
-  // Actualizar posición
   gameState.player.x = targetX;
   gameState.player.y = targetY;
   updatePlayerPosition();
@@ -148,9 +240,9 @@ function movePlayer(dx, dy) {
 }
 
 function checkCellInteractions() {
-  const side = gameState.currentSide;
-  const config = side === 'blue' ? blueMapConfig : redMapConfig;
-  const cellData = config.grid[gameState.player.y][gameState.player.x];
+  const currentLevelData = levels[gameState.currentLevel];
+  const sideConfig = gameState.currentSide === 'blue' ? currentLevelData.blueMap : currentLevelData.redMap;
+  const cellData = sideConfig.grid[gameState.player.y][gameState.player.x];
 
   if (!cellData.item) return;
 
@@ -164,19 +256,25 @@ function checkCellInteractions() {
     cellData.item = null;
     document.getElementById('badge-red').classList.add('acquired');
     showMessage('🔑 ¡Conseguiste la Llave Roja!');
+  } else if (cellData.item === 'KEY_YELLOW') {
+    gameState.keys.yellow = true;
+    cellData.item = null;
+    document.getElementById('badge-yellow').classList.add('acquired');
+    showMessage('🔑 ¡Conseguiste la Llave Amarilla!');
   } else if (cellData.item === 'STAR') {
     gameState.starsCollected++;
     cellData.item = null;
     document.getElementById('badge-stars').innerText = `⭐ ${gameState.starsCollected}/${gameState.totalStars}`;
     showMessage('⭐ ¡Recogiste una estrella!');
+    
     if (gameState.starsCollected === gameState.totalStars) {
-      showMessage('🎉 ¡FELICIDADES! ¡Has recolectado todas las estrellas y escapado!');
+      showMessage('🎉 ¡FELICIDADES! ¡Recolectaste todas las estrellas de este nivel!');
     }
   } else if (cellData.item === 'FLIP') {
-    showMessage('🔄 Estás sobre una máquina Flip-Flop. Presiona ESPACIO o el botón 🔄 para cambiar de dimensión.');
+    showMessage('🔄 Estás sobre una máquina Flip-Flop. Presiona ESPACIO o 🔄 para cambiar de dimensión.');
   }
 
-  renderGrid(`${side}-grid`, config);
+  renderGrid(`${gameState.currentSide}-grid`, sideConfig);
 }
 
 // --- MECÁNICA FLIP ---
@@ -195,10 +293,10 @@ function triggerFlip() {
   setTimeout(updatePlayerPosition, 300);
 }
 
-// Comprueba si el jugador puede cambiar de dimensión (Brazalete o Máquina)
 function tryFlip() {
-  const config = gameState.currentSide === 'blue' ? blueMapConfig : redMapConfig;
-  const currentItem = config.grid[gameState.player.y][gameState.player.x].item;
+  const currentLevelData = levels[gameState.currentLevel];
+  const currentConfig = gameState.currentSide === 'blue' ? currentLevelData.blueMap : currentLevelData.redMap;
+  const currentItem = currentConfig.grid[gameState.player.y][gameState.player.x].item;
 
   if (gameState.hasBracelet || currentItem === 'FLIP') {
     triggerFlip();
@@ -215,6 +313,57 @@ function showMessage(msg) {
   document.getElementById('message').innerText = msg;
 }
 
+// --- CARGA DE NIVELES ---
+function loadLevel(levelIndex) {
+  if (levelIndex >= levels.length) {
+    showMessage('🎉 ¡FELICIDADES! Has completado todos los niveles del juego.');
+    return;
+  }
+
+  gameState.currentLevel = levelIndex;
+  const levelData = levels[levelIndex];
+
+  gameState.hasBracelet = levelData.hasBracelet;
+  gameState.totalStars = levelData.totalStars;
+  gameState.starsCollected = 0;
+  gameState.keys = { blue: false, red: false, yellow: false };
+  gameState.currentSide = 'blue';
+
+  // Buscar Spawn (🚩)
+  let spawnFound = false;
+  for (let y = 0; y < 3; y++) {
+    for (let x = 0; x < 3; x++) {
+      if (levelData.blueMap.grid[y][x].item === 'SPAWN') {
+        gameState.player.x = x;
+        gameState.player.y = y;
+        spawnFound = true;
+        break;
+      }
+    }
+    if (spawnFound) break;
+  }
+
+  // Reiniciar UI de Badges
+  document.getElementById('badge-blue').classList.remove('acquired');
+  document.getElementById('badge-red').classList.remove('acquired');
+  document.getElementById('badge-yellow').classList.remove('acquired');
+  document.getElementById('badge-stars').innerText = `⭐ 0/${gameState.totalStars}`;
+
+  const card = document.getElementById('card');
+  card.classList.remove('flipped');
+
+  // Renderizar tableros
+  renderGrid('blue-grid', levelData.blueMap);
+  renderGrid('red-grid', levelData.redMap);
+  updatePlayerPosition();
+
+  const modeText = gameState.hasBracelet 
+    ? '⌚ ¡Brazalete Equipado! Presiona ESPACIO en cualquier casilla.' 
+    : '🔄 Usa las máquinas Flip-Flop para cambiar de dimensión.';
+
+  showMessage(`🚪 ¡Nivel ${levelIndex + 1} cargado! ${modeText}`);
+}
+
 // --- CONTROLES TECLADO ---
 window.addEventListener('keydown', (e) => {
   switch (e.key.toLowerCase()) {
@@ -222,7 +371,7 @@ window.addEventListener('keydown', (e) => {
     case 's': case 'arrowdown': movePlayer(0, 1); break;
     case 'a': case 'arrowleft': movePlayer(-1, 0); break;
     case 'd': case 'arrowright': movePlayer(1, 0); break;
-    case ' ': // 🌌 Tecla Espacio para el cambio dimensional
+    case ' ':
       e.preventDefault();
       tryFlip();
       break;
@@ -232,6 +381,5 @@ window.addEventListener('keydown', (e) => {
 window.addEventListener('resize', updatePlayerPosition);
 
 // --- INICIALIZACIÓN ---
-renderGrid('blue-grid', blueMapConfig);
-renderGrid('red-grid', redMapConfig);
 createPlayerToken();
+loadLevel(0);
