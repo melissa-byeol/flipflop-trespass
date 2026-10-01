@@ -4,7 +4,7 @@ const gameState = {
   player: { 
     x: 0, 
     y: 2, 
-    color: '#facc15' // Color por defecto (Dorado/Amarillo)
+    color: '#facc15'
   },
   currentSide: 'blue',
   keys: { blue: false, red: false, yellow: false },
@@ -13,7 +13,6 @@ const gameState = {
   hasBracelet: false
 };
 
-// Mapeo de direcciones estandarizadas para CSS
 const DIR_MAP = {
   up: 'top',
   down: 'bottom',
@@ -25,22 +24,20 @@ const DIR_MAP = {
 
 // --- CONFIGURACIÓN DE NIVELES ---
 const levels = [
-  // ==========================================
-  // NIVEL 1 (Índice 0) - Puerta Roja actúa como pasillo al Nivel 2
-  // ==========================================
+  // NIVEL 1
   {
     hasBracelet: false,
-    totalStars: 3,
+    totalStars: 2,
     blueMap: {
       grid: [
-        [{ item: null },       { item: 'FLIP' },     { item: 'STAR' }], // Fila 0
-        [{ item: null },       { item: 'KEY_BLUE' }, { item: null }],   // Fila 1
-        [{ item: 'SPAWN' },    { item: 'STAR' },     { item: null }]    // Fila 2
+        [{ item: null },       { item: 'FLIP' },     { item: 'STAR' }],
+        [{ item: null },       { item: 'KEY_BLUE' }, { item: null }],
+        [{ item: 'SPAWN' },    { item: 'STAR' },     { item: null }]
       ],
       borders: [
         { x: 1, y: 0, dir: 'right', type: 'wall' },
         { x: 1, y: 1, dir: 'right', type: 'wall' },
-        { x: 2, y: 1, dir: 'right', type: 'door-red' }, // 🚪 Pasillo hacia el Nivel 2
+        { x: 2, y: 1, dir: 'right', type: 'door-red' },
         { x: 1, y: 2, dir: 'right', type: 'door-blue' },
         { x: 1, y: 2, dir: 'top', type: 'wall' },
         { x: 1, y: 2, dir: 'left', type: 'wall' }
@@ -48,13 +45,12 @@ const levels = [
     },
     redMap: {
       grid: [
-        [{ item: null }, { item: null },       { item: 'FLIP' }],   // Fila 0
-        [{ item: null }, { item: 'STAR' },       { item: null }],     // Fila 1
-        [{ item: null }, { item: 'KEY_RED' },  { item: null }]      // Fila 2
+        [{ item: null }, { item: null },       { item: 'FLIP' }],
+        [{ item: null }, { item: null },       { item: null }],
+        [{ item: null }, { item: 'KEY_RED' },  { item: null }]
       ],
       borders: [
         { x: 1, y: 1, dir: 'right', type: 'wall' },
-        { x: 1, y: 2, dir: 'right', type: 'wall' },
         { x: 1, y: 1, dir: 'left', type: 'wall' },
         { x: 1, y: 1, dir: 'top', type: 'wall' },
         { x: 1, y: 1, dir: 'bottom', type: 'door-blue' }
@@ -62,17 +58,15 @@ const levels = [
     }
   },
 
-  // ==========================================
-  // NIVEL 2 (Índice 1) - Con Brazalete Flip y Llave Amarilla
-  // ==========================================
+  // NIVEL 2
   {
-    hasBracelet: true, // ⌚ Habilita Flip en cualquier casilla
+    hasBracelet: true,
     totalStars: 3,
     blueMap: {
       grid: [
-        [{ item: 'SPAWN' },    { item: null },       { item: 'STAR' }],       // Fila 0
-        [{ item: null },       { item: 'KEY_BLUE' }, { item: null }],         // Fila 1
-        [{ item: 'STAR' },     { item: null },       { item: 'KEY_YELLOW' }]  // Fila 2
+        [{ item: 'SPAWN' },    { item: null },       { item: 'STAR' }],
+        [{ item: null },       { item: 'KEY_BLUE' }, { item: null }],
+        [{ item: 'STAR' },     { item: null },       { item: 'KEY_YELLOW' }]
       ],
       borders: [
         { x: 0, y: 0, dir: 'right', type: 'wall' },
@@ -82,9 +76,9 @@ const levels = [
     },
     redMap: {
       grid: [
-        [{ item: null },       { item: 'STAR' },     { item: null }],         // Fila 0
-        [{ item: 'KEY_RED' },  { item: null },       { item: null }],         // Fila 1
-        [{ item: null },       { item: null },       { item: null }]          // Fila 2
+        [{ item: null },       { item: 'STAR' },     { item: null }],
+        [{ item: 'KEY_RED' },  { item: null },       { item: null }],
+        [{ item: null },       { item: null },       { item: null }]
       ],
       borders: [
         { x: 1, y: 0, dir: 'bottom', type: 'wall' },
@@ -111,11 +105,11 @@ function renderGrid(containerId, config) {
       if (item === 'FLIP') {
         cell.innerText = '🔄';
       } else if (item === 'KEY_BLUE') {
-        cell.innerHTML = '<img src="blue-key.png" class="item-icon" alt="Llave Azul">';
+        cell.innerHTML = '<img src="assets/blue-key.png" class="item-icon" alt="Llave Azul">';
       } else if (item === 'KEY_RED') {
-        cell.innerHTML = '<img src="red-key.png" class="item-icon" alt="Llave Roja">';
+        cell.innerHTML = '<img src="assets/red-key.png" class="item-icon" alt="Llave Roja">';
       } else if (item === 'KEY_YELLOW') {
-        cell.innerHTML = '<img src="yellow-key.png" class="item-icon" alt="Llave Amarilla">';
+        cell.innerHTML = '<img src="assets/yellow-key.png" class="item-icon" alt="Llave Amarilla">';
       } else if (item === 'STAR') {
         cell.innerText = '⭐';
       } else if (item === 'SPAWN') {
@@ -156,7 +150,6 @@ function updatePlayerPosition() {
   }
 }
 
-// --- PERSONALIZACIÓN DEL JUGADOR ---
 function selectPlayerColor(colorHex, buttonElement) {
   gameState.player.color = colorHex;
   
@@ -172,7 +165,6 @@ function selectPlayerColor(colorHex, buttonElement) {
   }
 }
 
-// --- LÓGICA DE MOVIMIENTO Y COLISIONES ---
 function movePlayer(dx, dy) {
   const currentX = gameState.player.x;
   const currentY = gameState.player.y;
@@ -277,7 +269,6 @@ function checkCellInteractions() {
   renderGrid(`${gameState.currentSide}-grid`, sideConfig);
 }
 
-// --- MECÁNICA FLIP ---
 function triggerFlip() {
   const card = document.getElementById('card');
   const newSide = gameState.currentSide === 'blue' ? 'red' : 'blue';
@@ -313,7 +304,6 @@ function showMessage(msg) {
   document.getElementById('message').innerText = msg;
 }
 
-// --- CARGA DE NIVELES ---
 function loadLevel(levelIndex) {
   if (levelIndex >= levels.length) {
     showMessage('🎉 ¡FELICIDADES! Has completado todos los niveles del juego.');
@@ -329,7 +319,6 @@ function loadLevel(levelIndex) {
   gameState.keys = { blue: false, red: false, yellow: false };
   gameState.currentSide = 'blue';
 
-  // Buscar Spawn (🚩)
   let spawnFound = false;
   for (let y = 0; y < 3; y++) {
     for (let x = 0; x < 3; x++) {
@@ -343,7 +332,6 @@ function loadLevel(levelIndex) {
     if (spawnFound) break;
   }
 
-  // Reiniciar UI de Badges
   document.getElementById('badge-blue').classList.remove('acquired');
   document.getElementById('badge-red').classList.remove('acquired');
   document.getElementById('badge-yellow').classList.remove('acquired');
@@ -352,7 +340,6 @@ function loadLevel(levelIndex) {
   const card = document.getElementById('card');
   card.classList.remove('flipped');
 
-  // Renderizar tableros
   renderGrid('blue-grid', levelData.blueMap);
   renderGrid('red-grid', levelData.redMap);
   updatePlayerPosition();
@@ -364,7 +351,6 @@ function loadLevel(levelIndex) {
   showMessage(`🚪 ¡Nivel ${levelIndex + 1} cargado! ${modeText}`);
 }
 
-// --- CONTROLES TECLADO ---
 window.addEventListener('keydown', (e) => {
   switch (e.key.toLowerCase()) {
     case 'w': case 'arrowup': movePlayer(0, -1); break;
@@ -380,6 +366,5 @@ window.addEventListener('keydown', (e) => {
 
 window.addEventListener('resize', updatePlayerPosition);
 
-// --- INICIALIZACIÓN ---
 createPlayerToken();
 loadLevel(0);
