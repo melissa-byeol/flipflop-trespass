@@ -37,7 +37,7 @@ const levels = [
       borders: [
         { x: 1, y: 0, dir: 'right', type: 'wall' },
         { x: 1, y: 1, dir: 'right', type: 'wall' },
-        { x: 2, y: 1, dir: 'right', type: 'door-red' },
+        { x: 2, y: 1, dir: 'right', type: 'door-red' }, // Pasillo / Puerta de salida al Nivel 2
         { x: 1, y: 2, dir: 'right', type: 'door-blue' },
         { x: 1, y: 2, dir: 'top', type: 'wall' },
         { x: 1, y: 2, dir: 'left', type: 'wall' }
@@ -165,13 +165,12 @@ function selectPlayerColor(colorHex, buttonElement) {
   }
 }
 
+// --- LÓGICA DE MOVIMIENTO Y COLISIONES CORREGIDA ---
 function movePlayer(dx, dy) {
   const currentX = gameState.player.x;
   const currentY = gameState.player.y;
   const targetX = currentX + dx;
   const targetY = currentY + dy;
-
-  if (targetX < 0 || targetX > 2 || targetY < 0 || targetY > 2) return;
 
   const currentLevelData = levels[gameState.currentLevel];
   const currentConfig = gameState.currentSide === 'blue' ? currentLevelData.blueMap : currentLevelData.redMap;
@@ -180,7 +179,9 @@ function movePlayer(dx, dy) {
   const dirIn  = dx === 1 ? 'left'  : dx === -1 ? 'right': dy === 1 ? 'top'    : 'bottom';
 
   let blocked = false;
+  let exitToNextLevel = false;
 
+  // Verificar si hay una puerta o pared en la casilla actual hacia la dirección de movimiento
   currentConfig.borders.forEach(b => {
     const bDir = DIR_MAP[b.dir] || b.dir;
 
@@ -205,8 +206,7 @@ function movePlayer(dx, dy) {
         } else {
           b.type = 'unlocked';
           if (gameState.currentLevel === 0) {
-            showMessage('🚪 ¡Puerta Roja abierta! Atravesando el pasillo al Nivel 2...');
-            setTimeout(() => { loadLevel(1); }, 700);
+            exitToNextLevel = true; // Permite el paso y activa la transición
           } else {
             showMessage('🔓 Abriste la puerta roja.');
           }
@@ -224,6 +224,18 @@ function movePlayer(dx, dy) {
   });
 
   if (blocked) return;
+
+  // Transición especial al Nivel 2 al salir por la Puerta Roja en el borde del Nivel 1
+  if (exitToNextLevel) {
+    showMessage('🚪 ¡Puerta Roja abierta! Entrando al pasillo hacia el Nivel 2...');
+    setTimeout(() => {
+      loadLevel(1);
+    }, 500);
+    return;
+  }
+
+  // Verificar límites del mapa normal
+  if (targetX < 0 || targetX > 2 || targetY < 0 || targetY > 2) return;
 
   gameState.player.x = targetX;
   gameState.player.y = targetY;
