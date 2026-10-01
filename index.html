@@ -3,28 +3,34 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Flip Escape Room 2D - 3x3</title>
+  <title>Flip Escape Room 2D</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
   <h1>Flip Escape Room 2D</h1>
 
-  <!-- Selector de color para la ficha del jugador -->
+  <!-- Selector de Modo de Juego -->
+  <div class="mode-selector">
+    <button id="btn-mode-keys" class="mode-btn active" onclick="switchGameMode('keys')">🔑 Modo Llaves</button>
+    <button id="btn-mode-colorscape" class="mode-btn" onclick="switchGameMode('colorscape')">🎨 Colorscape</button>
+  </div>
+
+  <!-- Selector de Color / Fase -->
   <div class="color-picker-container">
-    <span>Color de Ficha:</span>
+    <span id="color-picker-label">Color de Ficha:</span>
     <div class="color-options">
-      <button class="color-btn active" style="background-color: #facc15;" onclick="selectPlayerColor('#facc15', this)" aria-label="Color Amarillo"></button>
-      <button class="color-btn" style="background-color: #38bdf8;" onclick="selectPlayerColor('#38bdf8', this)" aria-label="Color Azul"></button>
-      <button class="color-btn" style="background-color: #f43f5e;" onclick="selectPlayerColor('#f43f5e', this)" aria-label="Color Rojo"></button>
-      <button class="color-btn" style="background-color: #22cc55;" onclick="selectPlayerColor('#22cc55', this)" aria-label="Color Verde"></button>
-      <button class="color-btn" style="background-color: #a855f7;" onclick="selectPlayerColor('#a855f7', this)" aria-label="Color Morado"></button>
+      <button class="color-btn active" style="background-color: #facc15;" onclick="selectPlayerColor('#facc15', 'yellow', this)" aria-label="Color Amarillo"></button>
+      <button class="color-btn" style="background-color: #38bdf8;" onclick="selectPlayerColor('#38bdf8', 'blue', this)" aria-label="Color Azul"></button>
+      <button class="color-btn" style="background-color: #f43f5e;" onclick="selectPlayerColor('#f43f5e', 'red', this)" aria-label="Color Rojo"></button>
     </div>
   </div>
 
   <div class="status-bar">
     <div>Mapa Actual: <span id="map-indicator" style="color: var(--accent-blue);">AZUL</span></div>
-    <div class="inventory">
+    
+    <!-- Inventario (Modo Llaves) -->
+    <div id="inventory-keys" class="inventory">
       <span id="badge-blue" class="key-badge">
         <img src="assets/blue-key.png" class="badge-icon" alt="Llave Azul">
       </span>
@@ -34,7 +40,13 @@
       <span id="badge-yellow" class="key-badge">
         <img src="assets/yellow-key.png" class="badge-icon" alt="Llave Amarilla">
       </span>
-      <span id="badge-stars" style="color: var(--gold);">⭐ 0/2</span>
+      <span id="badge-stars-keys" style="color: var(--gold); margin-left: 8px;">⭐ 0/2</span>
+    </div>
+
+    <!-- Indicador Colorscape -->
+    <div id="inventory-colorscape" class="inventory hidden">
+      <div>Fase: <span id="color-indicator" style="color: #facc15; font-weight: bold;">AMARILLO</span></div>
+      <span id="badge-stars-colors" style="color: var(--gold); margin-left: 12px;">⭐ 0/2</span>
     </div>
   </div>
 
@@ -45,10 +57,10 @@
     </div>
   </div>
 
-  <div class="message-log" id="message">Usa W, A, S, D, Flechas o los botones táctiles para moverte.</div>
+  <div class="message-log" id="message">Selecciona un modo de juego para comenzar.</div>
   <div class="controls-hint">Pisa el interruptor 🔄 o usa el Brazalete (ESPACIO) para voltear el mapa (FLIP).</div>
 
-  <!-- Controles táctiles para móviles / tablets -->
+  <!-- Controles táctiles -->
   <div class="mobile-controls">
     <div class="dpad">
       <button class="btn-touch btn-up" onclick="movePlayer(0, -1)" aria-label="Mover arriba">▲</button>
