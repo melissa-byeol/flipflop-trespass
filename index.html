@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Flip Escape Room 2D</title>
+  <title>Flip Escape Room 2D - Ultimate Edition</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-  <h1>Flip Escape Room 2D</h1>
+  <h1>🎮 Flip Escape Room 2D</h1>
 
   <!-- Selector de Modo de Juego -->
   <div class="mode-selector">
@@ -23,30 +23,31 @@
       <button class="color-btn active" style="background-color: #facc15;" onclick="selectPlayerColor('#facc15', 'yellow', this)" aria-label="Color Amarillo"></button>
       <button class="color-btn" style="background-color: #38bdf8;" onclick="selectPlayerColor('#38bdf8', 'blue', this)" aria-label="Color Azul"></button>
       <button class="color-btn" style="background-color: #f43f5e;" onclick="selectPlayerColor('#f43f5e', 'red', this)" aria-label="Color Rojo"></button>
+      <button class="color-btn hidden" id="btn-green" style="background-color: #22c55e;" onclick="selectPlayerColor('#22c55e', 'green', this)" aria-label="Color Verde"></button>
+      <button class="color-btn hidden" id="btn-purple" style="background-color: #a855f7;" onclick="selectPlayerColor('#a855f7', 'purple', this)" aria-label="Color Morado"></button>
     </div>
   </div>
 
   <div class="status-bar">
-    <div>Mapa Actual: <span id="map-indicator" style="color: var(--accent-blue);">AZUL</span></div>
+    <div>Nivel: <span id="level-indicator" style="color: var(--accent-blue);">1</span>/10</div>
+    <div>Mapa: <span id="map-indicator" style="color: var(--accent-blue);">AZUL</span></div>
     
-    <!-- Inventario (Modo Llaves) -->
-    <div id="inventory-keys" class="inventory">
-      <span id="badge-blue" class="key-badge">
-        <img src="assets/blue-key.png" class="badge-icon" alt="Llave Azul">
-      </span>
-      <span id="badge-red" class="key-badge">
-        <img src="assets/red-key.png" class="badge-icon" alt="Llave Roja">
-      </span>
-      <span id="badge-yellow" class="key-badge">
-        <img src="assets/yellow-key.png" class="badge-icon" alt="Llave Amarilla">
-      </span>
-      <span id="badge-stars-keys" style="color: var(--gold); margin-left: 8px;">⭐ 0/2</span>
+    <!-- Inventario Grid -->
+    <div class="inventory-container">
+      <div class="inventory-grid">
+        <div class="inventory-slot" data-slot="0"><span class="slot-number">1</span><div class="item-placeholder"></div></div>
+        <div class="inventory-slot" data-slot="1"><span class="slot-number">2</span><div class="item-placeholder"></div></div>
+        <div class="inventory-slot" data-slot="2"><span class="slot-number">3</span><div class="item-placeholder"></div></div>
+        <div class="inventory-slot" data-slot="3"><span class="slot-number">4</span><div class="item-placeholder"></div></div>
+        <div class="inventory-slot" data-slot="4"><span class="slot-number">5</span><div class="item-placeholder"></div></div>
+        <div class="inventory-slot" data-slot="5"><span class="slot-number">6</span><div class="item-placeholder"></div></div>
+      </div>
     </div>
 
     <!-- Indicador Colorscape -->
     <div id="inventory-colorscape" class="inventory hidden">
       <div>Fase: <span id="color-indicator" style="color: #facc15; font-weight: bold;">AMARILLO</span></div>
-      <span id="badge-stars-colors" style="color: var(--gold); margin-left: 12px;">⭐ 0/2</span>
+      <span id="badge-stars-colors" style="color: var(--gold); margin-left: 12px;">⭐ 0/3</span>
     </div>
   </div>
 
@@ -58,7 +59,7 @@
   </div>
 
   <div class="message-log" id="message">Selecciona un modo de juego para comenzar.</div>
-  <div class="controls-hint">Pisa el interruptor 🔄 o usa el Brazalete (ESPACIO) para voltear el mapa (FLIP).</div>
+  <div class="controls-hint">WASD/Flechas: Mover | ESPACIO: Flip | Recoge todas las ⭐ para avanzar</div>
 
   <!-- Controles táctiles -->
   <div class="mobile-controls">
